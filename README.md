@@ -6,7 +6,7 @@ Developed at the [Museum für Naturkunde Berlin](https://www.museumfuernaturkund
 
 ## Overview
 
-Descriptron Portal provides authenticated, browser-based access to GPU-powered Descriptron workspaces for taxonomic research. Users log in through a web dashboard, provision an on-demand GPU pod (via [RunPod](https://www.runpod.io/)), and interact with a full Linux desktop running SAM2 segmentation, Detectron2 keypoint detection, DINOSAR species delimitation, and the complete Descriptron annotation toolkit — all from a standard web browser with no local installation.
+Descriptron Portal provides authenticated, browser-based access to GPU-powered Descriptron workspaces for taxonomic research. Users log in through a web dashboard, provision an on-demand GPU pod (via [RunPod](https://www.runpod.io/)), and interact with a full Linux desktop running SAM2 segmentation, Detectron2 keypoint detection, DINOSAR_v2 species delimitation, and the complete Descriptron annotation toolkit — all from a standard web browser with no local installation.
 
 The portal is designed for small research groups (3–10 users) who need shared access to GPU compute for biodiversity informatics workflows without the cost or complexity of maintaining dedicated GPU hardware.
 
@@ -188,7 +188,6 @@ For a small group running 2–4 hours of GPU sessions per day, expect roughly �
 
 - **[Descriptron GBIF Annotator](https://descriptrongbifannotator.org)**: Browser-based morphological annotation platform for GBIF occurrence images (zero-install, single HTML file).
 - **DINOSAR v2**: Vision embedding system for open-set species delimitation.
-- **TECTAX**: Taxonomic Expert Collection for Taxonomic AI eXploration — addressing the taxonomic crisis in hyperdiverse insect families.
 
 ## Citation
 
@@ -202,8 +201,5 @@ for Integrative Biodiversity Discovery. https://doi.org/10.5281/zenodo.XXXXXXX
 
 ## License
 
-[Specify your license — e.g., MIT, Apache 2.0, or GPL-3.0]
+Apache 2.0
 
-## Acknowledgements
-
-Developed at the Museum für Naturkunde Berlin, Center for Integrative Biodiversity Discovery, with support from the MfN Innovation Fund. Part of the TECTAX research initiative for accelerating taxonomic discovery in hyperdiverse insect families.
