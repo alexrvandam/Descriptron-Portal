@@ -1,0 +1,27 @@
+# Descriptron Portal Configuration
+# Copy to .env and fill in your values:  cp .env.example .env
+
+# ── Domain ──
+DOMAIN=descriptronportal.example.com
+
+# ── Database ──
+DB_PASSWORD=CHANGE_ME_random_string_here
+
+# ── RunPod GPU Cloud ──
+RUNPOD_API_KEY=your_runpod_api_key_here
+DESCRIPTRON_IMAGE=yourdockerhub/descriptron-portal:latest
+RUNPOD_GPU_TYPE=NVIDIA RTX A4000
+RUNPOD_GPU_FALLBACKS=NVIDIA GeForce RTX 3090,NVIDIA RTX A5000,NVIDIA GeForce RTX 4090,NVIDIA RTX A6000
+RUNPOD_NETWORK_VOLUME_ID=
+RUNPOD_DATACENTER_ID=
+
+# ── Pod Settings ──
+POD_IDLE_TIMEOUT_MINUTES=120
+POD_CONTAINER_DISK_GB=50
+POD_VOLUME_GB=20
+
+# ── App Security ──
+SECRET_KEY=CHANGE_ME_another_random_string
+
+# ── Docker Compose ──
+COMPOSE_PROJECT_NAME=descriptron-portal

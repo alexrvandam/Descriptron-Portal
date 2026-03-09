@@ -1,0 +1,210 @@
+worker_processes auto;
+events { worker_connections 1024; }
+
+http {
+    include /etc/nginx/mime.types;
+
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+    }
+
+    limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
+
+    # HTTP → HTTPS redirect
+    server {
+        listen 80;
+        server_name YOUR_SERVER_IP;
+        location /.well-known/acme-challenge/ { root /var/www/certbot; }
+        location / { return 301 https://$host$request_uri; }
+    }
+
+    # HTTPS
+    server {
+        listen 443 ssl;
+        server_name YOUR_SERVER_IP;
+
+        # Start with self-signed; switch to Let's Encrypt later
+        ssl_certificate     /etc/nginx/ssl/selfsigned.crt;
+        ssl_certificate_key /etc/nginx/ssl/selfsigned.key;
+        # ssl_certificate     /etc/letsencrypt/live/YOUR_SERVER_IP/fullchain.pem;
+        # ssl_certificate_key /etc/letsencrypt/live/YOUR_SERVER_IP/privkey.pem;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        add_header X-Frame-Options SAMEORIGIN;
+        add_header Strict-Transport-Security "max-age=63072000" always;
+
+
+        # ── Orchestrator (dashboard, login, API) ────────────────────────
+        location /login {
+            proxy_pass http://descriptron-orchestrator:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /logout {
+            proxy_pass http://descriptron-orchestrator:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /dashboard {
+            proxy_pass http://descriptron-orchestrator:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /api/ {
+            proxy_pass http://descriptron-orchestrator:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # ── Guacamole (remote desktop portal) ───────────────────────
+        location /guacamole/ {
+            proxy_pass http://guac-web:8080/guacamole/;
+            proxy_buffering off;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+            proxy_read_timeout 3600s;
+            proxy_send_timeout 3600s;
+        }
+
+        # ── Root redirect to dashboard ──────────────────────────────
+        location = / {
+            return 302 /dashboard?user=$arg_user;
+        }
+    }
+    # ── Descriptron GBIF Annotator ──────────────────────────────────
+    server {
+        listen 80;
+        server_name annotator.example.com www.annotator.example.com;
+
+        location ^~ /.well-known/acme-challenge/ {
+            root /var/www/certbot;
+            default_type "text/plain";
+            try_files $uri =404;
+        }
+
+        #location / {
+        #    proxy_pass http://host.docker.internal:8100/;
+        #    proxy_set_header Host $host;
+        #    proxy_set_header X-Real-IP $remote_addr;
+        #}
+        location / {
+            return 301 https://$host$request_uri;
+        }
+    }
+
+    server {
+        listen 443 ssl;
+        server_name annotator.example.com www.annotator.example.com;
+
+        ssl_certificate     /etc/letsencrypt/live/annotator.example.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/annotator.example.com/privkey.pem;
+
+        location / {
+            proxy_pass http://host.docker.internal:8100/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+# ── Descriptron Portal (portal.example.com) ──────────────────
+    server {
+        listen 80;
+        server_name portal.example.com www.portal.example.com;
+
+        location ^~ /.well-known/acme-challenge/ {
+            root /var/www/certbot;
+            default_type "text/plain";
+            try_files $uri =404;
+        }
+
+        location / {
+            return 301 https://$host$request_uri;
+        }
+    }
+
+    server {
+        listen 443 ssl;
+        server_name portal.example.com www.portal.example.com;
+
+        ssl_certificate     /etc/letsencrypt/live/portal.example.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/portal.example.com/privkey.pem;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        add_header X-Frame-Options SAMEORIGIN;
+        add_header Strict-Transport-Security "max-age=63072000" always;
+
+        # ── Orchestrator (dashboard, login, API) ────────────────────
+        location /login {
+            proxy_pass http://descriptron-orchestrator:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /logout {
+            proxy_pass http://descriptron-orchestrator:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /dashboard {
+            proxy_pass http://descriptron-orchestrator:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /api/ {
+            proxy_pass http://descriptron-orchestrator:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # ── Guacamole (remote desktop portal) ───────────────────────
+        location /guacamole/ {
+            proxy_pass http://guac-web:8080/guacamole/;
+            proxy_buffering off;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+            proxy_read_timeout 3600s;
+            proxy_send_timeout 3600s;
+        }
+
+        # ── Root redirect to dashboard ──────────────────────────────
+        location = / {
+            return 302 /dashboard;
+        }
+    }
+
+
+}

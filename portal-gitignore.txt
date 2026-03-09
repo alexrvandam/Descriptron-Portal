@@ -1,0 +1,32 @@
+# ═══ Secrets (NEVER commit) ═══
+.env
+*.pem
+*.key
+*.crt
+
+# ═══ Generated at setup time ═══
+guacamole/initdb.sql
+nginx/ssl/
+
+# ═══ Data & state ═══
+user-data/
+backups/
+orchestrator_data/
+*.db
+*.sqlite
+
+# ═══ Runtime ═══
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.log
+
+# ═══ OS / editor ═══
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

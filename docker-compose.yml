@@ -1,0 +1,147 @@
+###############################################################################
+# Descriptron Portal — Always-On Portal VM
+#
+# Runs on a cheap CPU-only VM (~€4-8/month on Hetzner Cloud)
+# GPU compute is handled by on-demand RunPod pods
+#
+# Architecture:
+#   Browser → Nginx (HTTPS) → Guacamole (auth) → guacd → RunPod pod VNC
+#   Browser → Nginx (HTTPS) → Orchestrator API (pod lifecycle)
+###############################################################################
+
+services:
+  # ─── PostgreSQL: Guacamole user/connection database ────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: guac-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: guacamole_db
+      POSTGRES_USER: guacamole_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./guacamole/initdb.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - guac-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guacamole_user -d guacamole_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── guacd: Guacamole connection daemon ────────────────────────────────
+  # Proxies VNC connections to RunPod pods over the internet
+  guacd:
+    image: guacamole/guacd:1.5.5
+    container_name: guac-daemon
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - guac-internal
+      - default
+
+  # ─── Guacamole: web portal (login, session management) ────────────────
+  guacamole:
+    image: guacamole/guacamole:1.5.5
+    container_name: guac-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      GUACD_HOSTNAME: guacd
+      GUACD_PORT: 4822
+      POSTGRES_HOSTNAME: postgres
+      POSTGRES_DATABASE: guacamole_db
+      POSTGRES_USER: guacamole_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      WEBAPP_CONTEXT: guacamole
+    networks:
+      - guac-internal
+    expose:
+      - "8080"
+
+  # ─── Orchestrator: manages RunPod pod lifecycle ────────────────────────
+  # Small Flask app that creates/stops/monitors RunPod GPU pods
+  # and registers VNC connections in Guacamole
+  orchestrator:
+    build: ./orchestrator
+    container_name: descriptron-orchestrator
+    restart: unless-stopped
+    environment:
+      RUNPOD_API_KEY: ${RUNPOD_API_KEY}
+      DESCRIPTRON_IMAGE: ${DESCRIPTRON_IMAGE}
+      RUNPOD_GPU_TYPE: ${RUNPOD_GPU_TYPE:-NVIDIA RTX A4000}
+      RUNPOD_GPU_FALLBACKS: ${RUNPOD_GPU_FALLBACKS:-}
+      RUNPOD_NETWORK_VOLUME_ID: ${RUNPOD_NETWORK_VOLUME_ID:-}
+      RUNPOD_DATACENTER_ID: ${RUNPOD_DATACENTER_ID:-}
+      DB_HOST: postgres
+      DB_NAME: guacamole_db
+      DB_USER: guacamole_user
+      DB_PASSWORD: ${DB_PASSWORD}
+      DOMAIN: ${DOMAIN}
+      SECRET_KEY: ${SECRET_KEY}
+      POD_IDLE_TIMEOUT_MINUTES: ${POD_IDLE_TIMEOUT_MINUTES:-120}
+      POD_CONTAINER_DISK_GB: ${POD_CONTAINER_DISK_GB:-50}
+      POD_VOLUME_GB: ${POD_VOLUME_GB:-20}
+    volumes:
+      - orchestrator_data:/app/data
+    networks:
+      - guac-internal
+    expose:
+      - "5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ─── Nginx: reverse proxy with SSL ────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: guac-proxy
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - guacamole
+      - orchestrator
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - certbot_webroot:/var/www/certbot:ro
+      - certbot_certs:/etc/letsencrypt:ro
+    networks:
+      - guac-internal
+
+  # ─── Certbot: automated SSL renewal ───────────────────────────────────
+  certbot:
+    image: certbot/certbot
+    container_name: guac-certbot
+    volumes:
+      - certbot_webroot:/var/www/certbot
+      - certbot_certs:/etc/letsencrypt
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 43200 & wait $${!}; done;'"
+
+  script-server:
+    image: python:3.11-slim
+    container_name: descriptron-scripts
+    restart: unless-stopped
+    command: python -m http.server 9999 --directory /scripts
+    volumes:
+      - /root/descriptron-scripts:/scripts:ro
+    ports:
+      - "9999:9999"
+
+volumes:
+  postgres_data:
+  orchestrator_data:
+  certbot_webroot:
+  certbot_certs:
+
+networks:
+  guac-internal:
+    name: guac-internal
