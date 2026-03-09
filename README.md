@@ -2,10 +2,14 @@
 
 **Cloud-deployed multi-user gateway for GPU-accelerated morphological analysis**
 
-The Deployment can be accessed live right now for new users to sign up at 
+The Deployment can be accessed live right now for new users to login at
 
 ## https://www.descriptronportal.org/login
 
+## New Users to sign up or for questions about access or setup, 
+## Contact for access or collaboration: please email me at alex[dot]vandam[at]mfn[dot]berlin just replace [dot] with . and [at] with @
+Public support and questions: please open a GitHub Discussion or Issue in this repository.
+please open a GitHub Discussion or Issue in this repository.
 
 <img width="1299" height="839" alt="Screenshot from 2026-03-09 12-18-08" src="https://github.com/user-attachments/assets/e288be5a-da5f-4591-bd17-6b9e48bc5909" />
 
