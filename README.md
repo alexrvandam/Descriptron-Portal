@@ -6,7 +6,7 @@ The Deployment can be accessed live right now for new users to sign up at
 
 ## https://www.descriptronportal.org/login
 
-<img width="1394" height="1011" alt="Screenshot from 2026-02-23 14-50-53" src="https://github.com/user-attachments/assets/dede7958-3ccd-4ae0-aada-1357d1bdce68" />
+<img width="1394" height="1011" alt="Screenshot from 2026-02-23 14-50-53" src="https://github.com/user-attachments/assets/dede7958-3ccd-4ae0-aada-1357d1bdce68" /> 
 
 Below is how to re-engineer the portal if useres so desire and to also explain to users who want a deeper understanding of how the portal works for those espececially interested.
 
