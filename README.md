@@ -2,6 +2,12 @@
 
 **Cloud-deployed multi-user gateway for GPU-accelerated morphological analysis**
 
+The Deployment can be accessed live right now for new users to sign up at 
+
+## https://www.descriptronportal.org/login
+
+Below is how to re-engineer the portal if useres so desire and to also explain to users who want a deeper understanding of how the portal works for those espececially interested.
+
 Developed at the [Museum für Naturkunde Berlin](https://www.museumfuernaturkunde.berlin/), Center for Integrative Biodiversity Discovery.
 
 ## Overview
