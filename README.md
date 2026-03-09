@@ -7,6 +7,8 @@ The Deployment can be accessed live right now for new users to sign up at
 ## https://www.descriptronportal.org/login
 
 
+<img width="1299" height="839" alt="Screenshot from 2026-03-09 12-18-08" src="https://github.com/user-attachments/assets/e288be5a-da5f-4591-bd17-6b9e48bc5909" />
+
 Below is how to re-engineer the portal if useres so desire and to also explain to users who want a deeper understanding of how the portal works for those espececially interested.
 
 Developed at the [Museum für Naturkunde Berlin](https://www.museumfuernaturkunde.berlin/), Center for Integrative Biodiversity Discovery.
