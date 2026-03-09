@@ -209,10 +209,10 @@ For a small group running 2â€“4 hours of GPU sessions per day, expect roughly â‚
 If you use the Descriptron Portal in your research, please cite:
 
 ```
-Van Dam, A.R. (2026). Descriptron Portal: Cloud-deployed multi-user gateway for 
-GPU-accelerated morphological analysis. Available from https://github.com/alexrvandam/Descriptron-Portal.
-https://doi.org/10.5281/zenodo.XXXXXXX
+Van Dam, A. R. (2026). Descriptron Portal: Cloud-deployed multi-user gateway for 
+GPU-accelerated morphological analysis. [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.18923115
 ```
+
 
 ## License
 
