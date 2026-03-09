@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+message: "If you use Descriptron Portal, please cite it as follows."
+title: "Descriptron Portal: Cloud-deployed multi-user gateway for GPU-accelerated morphological analysis"
+type: software
+
+authors:
+  - family-names: "Van Dam"
+    given-names: "Alex R."
+    orcid: "https://orcid.org/0000-0002-1966-0338"
+
+repository-code: "https://github.com/alexrvandam/Descriptron-Portal"
+url: "https://github.com/alexrvandam/Descriptron-Portal"
+doi: "10.5281/zenodo.18923115"
+license: "Apache-2.0"
+
+abstract: >
+  Cloud-deployed multi-user gateway for GPU-accelerated morphological
+  analysis, providing authenticated browser-based access to Descriptron
+  workspaces for taxonomic research.
+
+keywords:
+  - taxonomy
+  - biodiversity informatics
+  - morphology
+  - computer vision
+  - GPU
+  - RunPod
+  - Apache Guacamole
+  - Descriptron
+  - species delimitation
+  - bioinformatics
+
+preferred-citation:
+  type: software
+  authors:
+    - family-names: "Van Dam"
+      given-names: "Alex R."
+      orcid: "https://orcid.org/0000-0002-1966-0338"
+  title: "Descriptron Portal"
+  doi: "10.5281/zenodo.18923115"
+  repository-code: "https://github.com/alexrvandam/Descriptron-Portal"
+  url: "https://github.com/alexrvandam/Descriptron-Portal"
